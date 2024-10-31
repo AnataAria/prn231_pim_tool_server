@@ -1,0 +1,6 @@
+@PIMToolServerAPI_HostAddress = http://localhost:5100
+
+GET {{PIMToolServerAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
