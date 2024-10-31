@@ -19,12 +19,11 @@ namespace DataAccessLayer.BusinessObject
 
         [Required]
         public string? PasswordHash { get; set; }
-        public UserRole Role { get; set; } = UserRole.User;
-        public ICollection<Product> CreatedProducts { get; set; } = [];
+        public UserRole Role { get; set; } = UserRole.Manager;
     }
     public enum UserRole
     {
         Admin,
-        User
+        Manager
     }
 }

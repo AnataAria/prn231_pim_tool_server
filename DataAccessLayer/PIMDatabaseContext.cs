@@ -1,28 +1,45 @@
 ﻿using DataAccessLayer.BusinessObject;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Attribute = DataAccessLayer.BusinessObject.Attribute;
 
 namespace DataAccessLayer
 {
     public class PIMDatabaseContext : DbContext
     {
         private readonly IConfiguration configuration;
-        public PIMDatabaseContext() { }
+        private readonly string _connectionString;
+        public PIMDatabaseContext() { 
+            _connectionString = "Server=(local);uid=sa;pwd=12345;database=PIMTool;TrustServerCertificate=True";
+        }
         public PIMDatabaseContext(IConfiguration configuration)
         {
             this.configuration = configuration;
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? "Server=(local);uid=sa;pwd=12345;database=PIMTool;TrustServerCertificate=True";
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            optionsBuilder.UseSqlServer(_connectionString);
         }
-        public virtual DbSet<Asset> Assets { get; set; }
-        public virtual DbSet<Attribute> Attributes { get; set; }
-        public virtual DbSet<Category> Categories { get; set; }
-        public virtual DbSet<Product> Products { get; set; }
-        public virtual DbSet<ProductAttribute> ProductAttributes { get; set; }
-        public virtual DbSet<ProductCategory> ProductCategories { get; set; }
+        public virtual DbSet<Group> Groups { get; set; }
+        public virtual DbSet<Employee> Employees { get; set; }
+        public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<User> Users { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.Employees)
+                .WithMany(e => e.Projects);
+
+            modelBuilder.Entity<Group>()
+                .HasOne(g => g.Leader)
+                .WithMany(e => e.Groups)
+                .HasForeignKey(g => g.LeaderId);
+
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.GroupProject)
+                .WithOne(g => g.Project)
+                .HasForeignKey<Project>(p => p.GroupId);
+        }
     }
 }
