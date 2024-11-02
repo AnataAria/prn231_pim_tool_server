@@ -54,5 +54,8 @@ namespace DataAccessLayer.Repository
         {
             return await _dbSet.Where(predicate).Skip((page -1) * size).Take(size).ToListAsync();
         }
+        public async Task<int> CountAsync() {
+            return await _dbSet.CountAsync();
+        }
     }
 }

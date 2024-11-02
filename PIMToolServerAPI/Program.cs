@@ -14,7 +14,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<PIMDatabaseContext>();
 builder.Services.AddScoped(typeof(BaseRepository<,>));
 builder.Services.AddScoped<UserRepository>();
+
+
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<ProjectService>();
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<UserService>();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
