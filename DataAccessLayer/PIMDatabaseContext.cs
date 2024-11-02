@@ -40,6 +40,9 @@ namespace DataAccessLayer
                 .HasOne(p => p.GroupProject)
                 .WithOne(g => g.Project)
                 .HasForeignKey<Project>(p => p.GroupId);
+
+            modelBuilder.Entity<User>().HasIndex(u => u.Username)
+            .IsUnique();
         }
     }
 }

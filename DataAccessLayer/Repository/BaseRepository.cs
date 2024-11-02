@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace DataAccessLayer.Repository
 {
@@ -47,6 +43,16 @@ namespace DataAccessLayer.Repository
                 _dbSet.Remove(entity);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<IEnumerable<T>> FindByConditionAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.Where(predicate).ToListAsync();
+        }
+
+        public async Task<IEnumerable<T>> FindByConditionWithPaginationAsync(Expression<Func<T, bool>> predicate, int page = 1, int size = 5)
+        {
+            return await _dbSet.Where(predicate).Skip((page -1) * size).Take(size).ToListAsync();
         }
     }
 }

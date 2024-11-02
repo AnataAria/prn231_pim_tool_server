@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.DTO.Request;
 using Service.DTO.Response;
@@ -17,7 +18,7 @@ public class AuthController(AuthService authService) : ControllerBase
         var response = await authService.Login(request);
         return StatusCode(response.StatusCode, response);
     }
-    [HttpGet("profile")]
+    [HttpGet("profile"), Authorize]
     public IActionResult GetUserProfile()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
