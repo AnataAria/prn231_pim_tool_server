@@ -2,6 +2,7 @@ using System.Text;
 using DataAccessLayer;
 using DataAccessLayer.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PIMToolServerAPI.Config;
 using Service.Service;
@@ -55,5 +56,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope()) {
+    var context = scope.ServiceProvider.GetRequiredService<PIMDatabaseContext>();
+    context.Database.Migrate();
+}
 
 app.Run();
