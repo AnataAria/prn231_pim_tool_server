@@ -9,7 +9,7 @@ public class Group
     public virtual Employee? Leader { get; set; }
 
     [Required]
-    public long? LeaderId { get; set; }
+    public long LeaderId { get; set; }
 
     [Required]
     public long Version { get; set; }

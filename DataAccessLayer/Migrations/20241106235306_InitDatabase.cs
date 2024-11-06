@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
@@ -60,7 +62,7 @@ namespace DataAccessLayer.Migrations
                         column: x => x.LeaderId,
                         principalTable: "Employees",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -103,14 +105,21 @@ namespace DataAccessLayer.Migrations
                         name: "FK_EmployeeProject_Employees_EmployeesId",
                         column: x => x.EmployeesId,
                         principalTable: "Employees",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_EmployeeProject_Projects_ProjectsId",
                         column: x => x.ProjectsId,
                         principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "PasswordHash", "Role", "Username" },
+                values: new object[,]
+                {
+                    { 1, "$2y$10$uFZ64K25vYOZBOzoIquHGuK8Sea4Nhlllg2JW53T04Owp3r0sc0re", 0, "admin" },
+                    { 2, "$2y$10$uFZ64K25vYOZBOzoIquHGuK8Sea4Nhlllg2JW53T04Owp3r0sc0re", 1, "jane" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -127,6 +136,12 @@ namespace DataAccessLayer.Migrations
                 name: "IX_Projects_GroupId",
                 table: "Projects",
                 column: "GroupId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
                 unique: true);
         }
 

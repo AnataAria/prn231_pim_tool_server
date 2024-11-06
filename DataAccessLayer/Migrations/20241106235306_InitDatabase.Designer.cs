@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(PIMDatabaseContext))]
-    [Migration("20241031151833_InitDatabase")]
+    [Migration("20241106235306_InitDatabase")]
     partial class InitDatabase
     {
         /// <inheritdoc />
@@ -67,8 +67,7 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("LeaderId")
-                        .IsRequired()
+                    b.Property<long>("LeaderId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("Version")
@@ -151,7 +150,26 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Username")
+                        .IsUnique();
+
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            PasswordHash = "$2y$10$uFZ64K25vYOZBOzoIquHGuK8Sea4Nhlllg2JW53T04Owp3r0sc0re",
+                            Role = 0,
+                            Username = "admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            PasswordHash = "$2y$10$uFZ64K25vYOZBOzoIquHGuK8Sea4Nhlllg2JW53T04Owp3r0sc0re",
+                            Role = 1,
+                            Username = "jane"
+                        });
                 });
 
             modelBuilder.Entity("EmployeeProject", b =>
@@ -174,7 +192,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.BusinessObject.Employee", "Leader")
                         .WithMany("Groups")
                         .HasForeignKey("LeaderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Leader");
@@ -196,13 +214,13 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.BusinessObject.Employee", null)
                         .WithMany()
                         .HasForeignKey("EmployeesId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("DataAccessLayer.BusinessObject.Project", null)
                         .WithMany()
                         .HasForeignKey("ProjectsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
