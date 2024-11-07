@@ -1,4 +1,6 @@
-﻿namespace Service.DTO.Response;
+﻿using DataAccessLayer.BusinessObject;
+
+namespace Service.DTO.Response;
 
 public class ResponseEntity<T>(T data, int statusCode, string message, bool success) where T : class
 {
