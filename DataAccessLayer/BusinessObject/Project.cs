@@ -30,7 +30,7 @@ public class Project
     [Required]
     public DateTime StartDate { get; set; }
     [Required]
-    public DateTime? EndDate { get; set; }
+    public DateTime EndDate { get; set; }
     [Required]
     public long Version { get; set; }
 }

@@ -14,4 +14,20 @@ public class ProjectController(ProjectService projectService): ControllerBase {
         var project = await service.GetProjects(page, size);
         return Ok(project);
     }
+
+    [HttpPost]
+    public async Task<ActionResult<ResponseEntity<Object>>> CreateProject ([FromBody] ProjectRequest project) {
+        var result = await service.CreateProject(project);
+        return StatusCode(result.StatusCode, result);
+    }
+    [HttpPut("{id}")]
+    public async Task<ActionResult<ResponseEntity<Object>>> UpdateProject ([FromBody] ProjectRequest project, [FromRoute] int id) {
+        var result = await service.UpdateProject(project, id);
+        return StatusCode(result.StatusCode, result);
+    }
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ResponseEntity<Object>>> RemoveProject ([FromRoute] int id) {
+        var result = await service.RemoveProject(id);
+        return StatusCode(result.StatusCode, result);
+    }
 }
