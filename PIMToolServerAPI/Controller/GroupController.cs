@@ -12,7 +12,7 @@ public class GroupController(GroupService groupService) : ControllerBase
     private readonly GroupService _groupService = groupService;
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ResponseEntity<GroupResponseDto>>> GetGroupById(int id)
+    public async Task<ActionResult<ResponseEntity<GroupResponseDto>>> GetGroupById([FromRoute] int id)
     {
         var response = await _groupService.GetGroupByIdAsync(id);
         return Ok(response);

@@ -12,3 +12,11 @@ public class EmployeeBaseResponse
     public long Version { get; set; }
 
 }
+
+public class EmployeeRequest
+{
+    public string? Visa {get; set;}
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public DateTime BirthDay { get; set; }
+}
