@@ -18,7 +18,7 @@ namespace DataAccessLayer.Repository
             return await _dbSet.Skip((page - 1) * size).Take(size).ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T> GetByIdAsync(long id)
         {
             return await _dbSet.FindAsync(id) ?? throw new KeyNotFoundException($"Entity with {id} not fould");
         }
@@ -57,5 +57,10 @@ namespace DataAccessLayer.Repository
         public async Task<int> CountAsync() {
             return await _dbSet.CountAsync();
         }
+        public IQueryable<T> AsQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
+
     }
 }

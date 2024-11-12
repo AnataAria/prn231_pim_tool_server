@@ -34,7 +34,7 @@ public class GroupService(GroupRepository groupRepository)
             return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
         }
 
-        public async Task<ResponseEntity<GroupResponseDto>> GetGroupByIdAsync(int groupId)
+        public async Task<ResponseEntity<GroupResponseDto>> GetGroupByIdAsync(long groupId)
         {
             var group = await _groupRepository.GetByIdAsync(groupId);
             if (group == null)
