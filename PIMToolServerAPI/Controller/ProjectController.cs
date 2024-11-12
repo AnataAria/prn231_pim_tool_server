@@ -11,20 +11,26 @@ public class ProjectController(ProjectService projectService): ControllerBase {
     private readonly ProjectService service = projectService;
     [HttpGet]
     public async Task<ActionResult<List<ProjectBaseResponse>>> SearchProjects(
-            [FromQuery] string searchTerm = "all",
-            [FromQuery] DateTime? startDate = null,
-            [FromQuery] DateTime? endDate = null,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+        [FromQuery] string searchTerm = "all",
+        [FromQuery] string status = null,  // Added nullable status
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
     {
         try
         {
-            var projects = await service.SearchProjectsAsync(searchTerm, startDate, endDate, pageNumber, pageSize);
+            var projects = await service.SearchProjectsAsync(searchTerm, status, startDate, endDate, pageNumber, pageSize);
+
+            if (projects == null || !projects.Any())
+            {
+                return NotFound("No projects found matching the criteria.");
+            }
+
             return Ok(projects);
         }
         catch (Exception ex)
         {
-            // Handle any exceptions that might occur
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
