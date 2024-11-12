@@ -79,7 +79,6 @@ public class GroupService(GroupRepository groupRepository)
 
             return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
         }
-
         public async Task<ResponseEntity<GroupResponseDto>> DeleteGroupAsync(int groupId)
         {
             var group = await _groupRepository.GetByIdAsync(groupId);
@@ -88,7 +87,12 @@ public class GroupService(GroupRepository groupRepository)
                 return ResponseEntity<GroupResponseDto>.NotFound($"Group with ID {groupId} not found.");
             }
 
-            await _groupRepository.DeleteAsync(groupId);
+            if (group.Project != null)
+            {
+                return ResponseEntity<GroupResponseDto>.BadRequest("Cannot delete a group that is linked to a project.");
+            }
+
+            await _groupRepository.DeleteGroupAsync(groupId);
 
             var groupResponseDto = new GroupResponseDto
             {
@@ -99,4 +103,19 @@ public class GroupService(GroupRepository groupRepository)
 
             return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
         }
+
+
+    public async Task<ResponseEntity<IEnumerable<GroupResponseDto>>> GetAllGroupsAsync()
+    {
+        var groups = await _groupRepository.GetAllGroupsAsync();
+        var groupDtos = groups.Select(g => new GroupResponseDto
+        {
+            Id = (int)g.Id,
+            LeaderId = (int)g.LeaderId,
+            Version = (int)g.Version,
+        });
+
+        return ResponseEntity<IEnumerable<GroupResponseDto>>.CreateSuccess(groupDtos);
+    }
+        
 }
