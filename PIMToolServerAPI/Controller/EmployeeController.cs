@@ -28,14 +28,22 @@ public class EmployeeController(EmployeeService employeeService): ControllerBase
     [HttpPost]
     public async Task<ActionResult<ResponseEntity<EmployeeBaseResponse>>> InsertEmployee([FromBody] EmployeeRequest employeeRequest)
     {
+        if (!ModelState.IsValid) {
+            var errors = string.Join(",", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            return BadRequest(ResponseEntity<EmployeeBaseResponse>.BadRequest(errors));
+        }
         var response = await _employeeService.CreateEmployeeAsync(employeeRequest);
         return CreatedAtAction(nameof(GetEmployeeById), new { id = response.Data.Id }, response);
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<ResponseEntity<GroupResponseDto>>> UpdateEmployee(int id, [FromBody] EmployeeRequest employeeRequest)
+    public async Task<ActionResult<ResponseEntity<EmployeeBaseResponse>>> UpdateEmployee(int id, [FromBody] EmployeeRequest employeeRequest)
     {
-        var response = await _employeeService.UpdateGroupAsync(id, employeeRequest);
+        if (!ModelState.IsValid) {
+            var errors = string.Join(",", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            return BadRequest(ResponseEntity<EmployeeBaseResponse>.BadRequest(errors));
+        }
+        var response = await _employeeService.UpdateEmployeeAsync(id, employeeRequest);
         if (response.StatusCode == 404)
         {
             return NotFound(response);
