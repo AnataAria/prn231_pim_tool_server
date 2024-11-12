@@ -44,6 +44,9 @@ builder.Services.AddDbContext<PIMDatabaseContext>();
 builder.Services.AddScoped(typeof(BaseRepository<,>));
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<GroupRepository>();
+builder.Services.AddScoped<EmployeeRepository>();
+builder.Services.AddScoped<ProjectRepository>();
+
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<EmployeeService>();
