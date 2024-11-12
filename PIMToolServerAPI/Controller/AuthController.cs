@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service.DTO.Request;
+using Service.DTO;
 using Service.DTO.Response;
 using Service.Service;
 
