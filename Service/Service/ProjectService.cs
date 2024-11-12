@@ -15,6 +15,7 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
 
     public async Task<List<ProjectBaseResponse>> SearchProjectsAsync(
     string searchTerm = "all",
+    string status = null,  // Make status nullable
     DateTime? startDate = null,
     DateTime? endDate = null,
     int pageNumber = 1,
@@ -24,6 +25,7 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
             (searchTerm == "all" ||
              p.Name.Contains(searchTerm) ||
              p.Customer.Contains(searchTerm)) &&
+            (status == null || p.Status == status) &&  
             (!startDate.HasValue || p.StartDate >= startDate) &&
             (!endDate.HasValue || p.EndDate <= endDate);
 
@@ -32,10 +34,10 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
         var projectBaseResponses = new List<ProjectBaseResponse>();
         foreach (var p in projectsQuery)
         {
-            var leader = await _employeeRepository.GetByIdAsync(p.GroupProject.LeaderId); // Await the async call
+            var leader = await _employeeRepository.GetByIdAsync(p.GroupProject.LeaderId); 
             projectBaseResponses.Add(new ProjectBaseResponse
             {
-                LeaderName = leader?.LastName,  // Ensure leader is not null before accessing LastName
+                LeaderName = leader?.LastName,  
                 ProjectNumber = p.ProjectNumber,
                 Name = p.Name,
                 Customer = p.Customer,
@@ -48,6 +50,7 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
 
         return projectBaseResponses;
     }
+
 
 
 
