@@ -96,6 +96,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseCors("AllowAllOrigins");
 
 using (var scope = app.Services.CreateScope())
 {
