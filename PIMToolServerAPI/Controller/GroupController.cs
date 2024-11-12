@@ -35,15 +35,44 @@ public class GroupController(GroupService groupService) : ControllerBase
         }
         return Ok(response);
     }
-
+    
     [HttpDelete("{id}")]
     public async Task<ActionResult<ResponseEntity<GroupResponseDto>>> DeleteGroup(int id)
     {
-        var response = await _groupService.DeleteGroupAsync(id);
-        if (response.StatusCode == 404)
+        try
         {
-            return NotFound(response);
+            var response = await _groupService.DeleteGroupAsync(id);
+            if (response.StatusCode == 404)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
         }
-        return Ok(response);
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal Server Error: {ex.Message}");
+        }
+    }
+    
+    [HttpGet]
+    public async Task<ActionResult<ResponseEntity<IEnumerable<GroupResponseDto>>>> GetAllGroupsAsync()
+    {
+        try
+        {
+            var response = await _groupService.GetAllGroupsAsync();
+            if (response.StatusCode == 200)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500,$"Server error: {ex.Message}" );
+        }
     }
 }
