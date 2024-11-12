@@ -6,7 +6,7 @@ using Service.Service;
 
 namespace PIMToolServerAPI.Controller;
 
-[ApiController, Route("/api/v1/projects")]
+[ApiController, Route("/api/v1/projects"), Authorize]
 public class ProjectController(ProjectService projectService): ControllerBase {
     private readonly ProjectService service = projectService;
     [HttpGet]
