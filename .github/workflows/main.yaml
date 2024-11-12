@@ -49,4 +49,4 @@ jobs:
           run: docker compose -p pimtool-application down pimtool-aspnet --rmi all -v
           continue-on-error: true
         - name: Deploy API
-          run: docker compose -p pimtool-application up -d pimtool-aspnet
+          run: docker compose -p pimtool-application up pimtool-aspnet -d
