@@ -10,9 +10,23 @@ namespace PIMToolServerAPI.Controller;
 public class ProjectController(ProjectService projectService): ControllerBase {
     private readonly ProjectService service = projectService;
     [HttpGet]
-    public async Task<ActionResult<ResponseListEntity<ProjectBaseResponse>>> GetPage([FromQuery] int page = 1, [FromQuery] int size = 5) {
-        var project = await service.GetProjects(page, size);
-        return Ok(project);
+    public async Task<ActionResult<List<ProjectBaseResponse>>> SearchProjects(
+            [FromQuery] string searchTerm = "all",
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            var projects = await service.SearchProjectsAsync(searchTerm, startDate, endDate, pageNumber, pageSize);
+            return Ok(projects);
+        }
+        catch (Exception ex)
+        {
+            // Handle any exceptions that might occur
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
     [HttpPost]

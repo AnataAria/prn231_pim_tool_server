@@ -3,24 +3,54 @@ using DataAccessLayer.BusinessObject;
 using DataAccessLayer.Repository;
 using Service.DTO;
 using Service.DTO.Response;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Service.Service;
 
-public class ProjectService(BaseRepository<Project, PIMDatabaseContext> repo)
+public class ProjectService(ProjectRepository projectRepository, EmployeeRepository employeeRepository)
 {
-    private readonly BaseRepository<Project, PIMDatabaseContext> repository = repo;
+    private readonly ProjectRepository repository = projectRepository;
+    private readonly EmployeeRepository _employeeRepository = employeeRepository;
 
-    public async Task<ResponseListEntity<ProjectBaseResponse>> GetProjects(int page, int size)
+    public async Task<List<ProjectBaseResponse>> SearchProjectsAsync(
+    string searchTerm = "all",
+    DateTime? startDate = null,
+    DateTime? endDate = null,
+    int pageNumber = 1,
+    int pageSize = 10)
     {
-        var result = await repository.GetPage(page, size);
-        int totalElement = await repository.CountAsync();
-        ICollection<ProjectBaseResponse> mapResult = result.Select(x => new ProjectBaseResponse { }).ToList();
-        return ResponseListEntity<ProjectBaseResponse>.CreateSuccess(mapResult,
-        page,
-        size,
-        (int)Math.Ceiling((double)totalElement / size),
-        totalElement);
+        Expression<Func<Project, bool>> predicate = p =>
+            (searchTerm == "all" ||
+             p.Name.Contains(searchTerm) ||
+             p.Customer.Contains(searchTerm)) &&
+            (!startDate.HasValue || p.StartDate >= startDate) &&
+            (!endDate.HasValue || p.EndDate <= endDate);
+
+        var projectsQuery = await repository.FindByConditionWithPaginationAsync(predicate, pageNumber, pageSize);
+
+        var projectBaseResponses = new List<ProjectBaseResponse>();
+        foreach (var p in projectsQuery)
+        {
+            var leader = await _employeeRepository.GetByIdAsync(p.GroupProject.LeaderId); // Await the async call
+            projectBaseResponses.Add(new ProjectBaseResponse
+            {
+                LeaderName = leader?.LastName,  // Ensure leader is not null before accessing LastName
+                ProjectNumber = p.ProjectNumber,
+                Name = p.Name,
+                Customer = p.Customer,
+                Status = p.Status,
+                StartDate = p.StartDate,
+                EndDate = p.EndDate,
+                Version = p.Version,
+            });
+        }
+
+        return projectBaseResponses;
     }
+
+
+
 
     public async Task<ResponseEntity<Object>> CreateProject (ProjectRequest projectRequest) {
         try {

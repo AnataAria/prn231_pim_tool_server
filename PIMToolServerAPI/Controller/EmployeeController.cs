@@ -6,7 +6,7 @@ using Service.Service;
 
 namespace PIMToolServerAPI.Controller;
 
-[ApiController, Route("/api/v1/employees")]
+[ApiController, Route("/api/v1/employees"), Authorize]
 public class EmployeeController(EmployeeService employeeService): ControllerBase {
     private readonly EmployeeService _employeeService = employeeService;
 
