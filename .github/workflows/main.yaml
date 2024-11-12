@@ -20,6 +20,7 @@ jobs:
           uses: docker/build-push-action@v4
           with:
             context: .
+            file: PIMToolServerAPI/Dockerfile
             push: true
             tags: ${{secrets.DOCKER_USERNAME}}/pimtool-aspnet:latest
     
