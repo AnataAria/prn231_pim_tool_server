@@ -29,21 +29,26 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
 
         var projectsQuery = await repository.FindByConditionWithPaginationAsync(predicate, pageNumber, pageSize);
 
-        // Use ToListAsync for awaiting all the tasks
-        var projectBaseResponses = await Task.WhenAll(projectsQuery.Select(async p => new ProjectBaseResponse
+        var projectBaseResponses = new List<ProjectBaseResponse>();
+        foreach (var p in projectsQuery)
         {
-            LeaderName =  _employeeRepository.GetById(p.GroupProject.LeaderId).LastName,
-            ProjectNumber = p.ProjectNumber,
-            Name = p.Name,
-            Customer = p.Customer,
-            Status = p.Status,
-            StartDate = p.StartDate,
-            EndDate = p.EndDate,
-            Version = p.Version,
-        }));
+            var leader = await _employeeRepository.GetByIdAsync(p.GroupProject.LeaderId); // Await the async call
+            projectBaseResponses.Add(new ProjectBaseResponse
+            {
+                LeaderName = leader?.LastName,  // Ensure leader is not null before accessing LastName
+                ProjectNumber = p.ProjectNumber,
+                Name = p.Name,
+                Customer = p.Customer,
+                Status = p.Status,
+                StartDate = p.StartDate,
+                EndDate = p.EndDate,
+                Version = p.Version,
+            });
+        }
 
-        return projectBaseResponses.ToList();
+        return projectBaseResponses;
     }
+
 
 
 
