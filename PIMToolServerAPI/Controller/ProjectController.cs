@@ -24,7 +24,7 @@ public class ProjectController(ProjectService projectService): ControllerBase {
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ResponseEntity<EmployeeBaseResponse>>> GetProjectById([FromRoute] int id)
+    public async Task<ActionResult<ResponseEntity<ProjectBaseResponse>>> GetProjectById([FromRoute] int id)
     {
         var response = await service.FindById(id);
         return Ok(response);
