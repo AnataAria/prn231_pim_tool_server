@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using AutoMapper;
 using DataAccessLayer.BusinessObject;
 using DataAccessLayer.Repository;
@@ -12,6 +11,7 @@ public class EmployeeService(EmployeeRepository employeeRepository, ProjectRepos
     private readonly EmployeeRepository _employeeRepository = employeeRepository;
     private readonly ProjectRepository _projectRepository = projectRepository;
     private readonly IMapper mapper = mapper;
+
     public async Task<List<EmployeeBaseResponse>> SearchEmployeesAsync(string searchTerm = "all", int pageNumber = 1, int pageSize = 10)
     {
         var employees = await _employeeRepository.FindByConditionWithPaginationAsync((e) => searchTerm == "all" ||
@@ -24,15 +24,12 @@ public class EmployeeService(EmployeeRepository employeeRepository, ProjectRepos
         return employeeBaseResponses;
     }
 
-
-
-
-
     public async Task<ResponseEntity<EmployeeBaseResponse>> FindById(int id)
     {
         try
         {
             var result = await _employeeRepository.GetByIdAsync(id);
+
             return ResponseEntity<EmployeeBaseResponse>.CreateSuccess(mapper.Map<EmployeeBaseResponse>(result));
         }
         catch (Exception)
@@ -40,6 +37,7 @@ public class EmployeeService(EmployeeRepository employeeRepository, ProjectRepos
             return ResponseEntity<EmployeeBaseResponse>.Other("Not Found Employee With This ID", 200);
         }
     }
+
 
     public async Task<ResponseEntity<EmployeeBaseResponse>> CreateEmployeeAsync(EmployeeRequest employeeRequest)
     {
@@ -112,24 +110,6 @@ public class EmployeeService(EmployeeRepository employeeRepository, ProjectRepos
         await _employeeRepository.DeleteAsync(id);
 
         return ResponseEntity<EmployeeBaseResponse>.CreateSuccess(mapper.Map<EmployeeBaseResponse>(employee));
-    }
-
-    public bool IsValidName(string fullname)
-    {
-        var regex = new Regex(@"^[A-Z][a-zA-Z0-9#@ ]*$");
-        return !string.IsNullOrWhiteSpace(fullname) && regex.IsMatch(fullname);
-    }
-
-    public static bool IsValidVisa(string visa)
-    {
-        const string VisaPattern = @"^[A-Z0-9]{5,10}$";
-
-        if (string.IsNullOrWhiteSpace(visa))
-        {
-            return false;
-        }
-
-        return Regex.IsMatch(visa, VisaPattern);
     }
     public bool IsValidBirthday(DateTime birthDate)
     {

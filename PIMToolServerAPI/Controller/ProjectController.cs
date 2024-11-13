@@ -1,3 +1,4 @@
+using DataAccessLayer.BusinessObject;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.DTO;
@@ -18,21 +19,15 @@ public class ProjectController(ProjectService projectService): ControllerBase {
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10)
     {
-        try
-        {
-            var projects = await service.SearchProjectsAsync(searchTerm, status, startDate, endDate, pageNumber, pageSize);
+        var projects = await service.SearchProjectsAsync(searchTerm, status, startDate, endDate, pageNumber, pageSize);
+        return Ok(projects);
+    }
 
-            if (projects == null || !projects.Any())
-            {
-                return NotFound("No projects found matching the criteria.");
-            }
-
-            return Ok(projects);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ResponseEntity<ProjectBaseResponse>>> GetProjectById([FromRoute] int id)
+    {
+        var response = await service.FindById(id);
+        return Ok(response);
     }
 
     [HttpPost]
