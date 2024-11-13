@@ -15,7 +15,7 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
 
     public async Task<ResponseEntity<List<Object>>> SearchProjectsAsync(
     string searchTerm = "all",
-    string status = null,  // Make status nullable
+    string status = null,  
     DateTime? startDate = null,
     DateTime? endDate = null,
     int pageNumber = 1,
