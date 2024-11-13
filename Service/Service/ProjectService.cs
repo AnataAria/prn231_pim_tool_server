@@ -13,7 +13,7 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
     private readonly ProjectRepository repository = projectRepository;
     private readonly EmployeeRepository _employeeRepository = employeeRepository;
 
-    public async Task<List<ProjectBaseResponse>> SearchProjectsAsync(
+    public async Task<ResponseEntity<List<Object>>> SearchProjectsAsync(
     string searchTerm = "all",
     string status = null,  // Make status nullable
     DateTime? startDate = null,
@@ -21,35 +21,68 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
     int pageNumber = 1,
     int pageSize = 10)
     {
-        Expression<Func<Project, bool>> predicate = p =>
-            (searchTerm == "all" ||
-             p.Name.Contains(searchTerm) ||
-             p.Customer.Contains(searchTerm)) &&
-            (status == null || p.Status == status) &&  
-            (!startDate.HasValue || p.StartDate >= startDate) &&
-            (!endDate.HasValue || p.EndDate <= endDate);
-
-        var projectsQuery = await repository.FindByConditionWithPaginationAsync(predicate, pageNumber, pageSize);
-
-        var projectBaseResponses = new List<ProjectBaseResponse>();
-        foreach (var p in projectsQuery)
+        try
         {
-            var leader = await _employeeRepository.GetByIdAsync(p.GroupProject.LeaderId); 
-            projectBaseResponses.Add(new ProjectBaseResponse
+            Expression<Func<Project, bool>> predicate = p =>
+                (searchTerm == "all" ||
+                 p.Name.Contains(searchTerm) ||
+                 p.Customer.Contains(searchTerm)) &&
+                (status == null || p.Status == status) &&
+                (!startDate.HasValue || p.StartDate >= startDate) &&
+                (!endDate.HasValue || p.EndDate <= endDate);
+
+            var projectsQuery = await repository.FindByConditionWithPaginationAsync(predicate, pageNumber, pageSize);
+
+            var projectBaseResponses = new List<ProjectBaseResponse>();
+            foreach (var p in projectsQuery)
             {
-                LeaderName = leader?.LastName,  
-                ProjectNumber = p.ProjectNumber,
-                Name = p.Name,
-                Customer = p.Customer,
-                Status = p.Status,
-                StartDate = p.StartDate,
-                EndDate = p.EndDate,
-                Version = p.Version,
+                var leader = await _employeeRepository.GetByIdAsync(p.GroupProject.LeaderId);
+                projectBaseResponses.Add(new ProjectBaseResponse
+                {
+                    LeaderName = leader?.LastName,
+                    ProjectNumber = p.ProjectNumber,
+                    Name = p.Name,
+                    Customer = p.Customer,
+                    Status = p.Status,
+                    StartDate = p.StartDate,
+                    EndDate = p.EndDate,
+                    Version = p.Version,
+                });
+            }
+
+            return ResponseEntity<List<Object>>.CreateSuccess(projectBaseResponses.Cast<Object>().ToList());
+        }
+        catch (Exception ex)
+        {
+
+            return ResponseEntity<List<Object>>.Other(ex.Message, 200);
+        }
+    }
+    public async Task<ResponseEntity<ProjectBaseResponse>> FindById(int id)
+    {
+        try
+        {
+            var result = await repository.GetByIdAsync(id);
+            var leader = await _employeeRepository.GetByIdAsync(result.GroupProject.LeaderId);
+
+            return ResponseEntity<ProjectBaseResponse>.CreateSuccess(new ProjectBaseResponse
+            {
+                LeaderName = leader?.LastName,
+                ProjectNumber = result.ProjectNumber,
+                Name = result.Name,
+                Customer = result.Customer,
+                Status = result.Status,
+                StartDate = result.StartDate,
+                EndDate = result.EndDate,
+                Version = result.Version,
             });
         }
-
-        return projectBaseResponses;
+        catch (Exception)
+        {
+            return ResponseEntity<ProjectBaseResponse>.Other("Not Found Employee With This ID", 200);
+        }
     }
+
 
 
 

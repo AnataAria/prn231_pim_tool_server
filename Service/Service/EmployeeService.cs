@@ -14,37 +14,48 @@ public class EmployeeService(EmployeeRepository employeeRepository, ProjectRepos
 
 
 
-    public async Task<List<EmployeeBaseResponse>> SearchEmployeesAsync(string searchTerm = "all", int pageNumber = 1, int pageSize = 10)
+    public async Task<ResponseEntity<List<Object>>> SearchEmployeesAsync(string searchTerm = "all", int pageNumber = 1, int pageSize = 10)
     {
-        Expression<Func<Employee, bool>> predicate = e =>
+        try
+        {
+            Expression<Func<Employee, bool>> predicate = e =>
             searchTerm == "all" ||
             e.Visa.Contains(searchTerm) ||
             e.FirstName.Contains(searchTerm) ||
             e.LastName.Contains(searchTerm);
 
-        var employees = await _employeeRepository.FindByConditionWithPaginationAsync(predicate, pageNumber, pageSize);
+            var employees = await _employeeRepository.FindByConditionWithPaginationAsync(predicate, pageNumber, pageSize);
 
-        var employeeBaseResponses = employees.Select(e => new EmployeeBaseResponse
+            var employeeBaseResponses = employees.Select(e => new EmployeeBaseResponse
+            {
+                Id = e.Id,
+                Visa = e.Visa,
+                FirstName = e.FirstName,
+                LastName = e.LastName,
+                BirthDay = e.BirthDay,
+                Version = e.Version
+            }).ToList();
+
+            return ResponseEntity<List<Object>>.CreateSuccess(employeeBaseResponses.Cast<Object>().ToList());
+        }
+        catch (Exception ex)
         {
-            Id = e.Id,
-            Visa = e.Visa,
-            FirstName = e.FirstName,
-            LastName = e.LastName,
-            BirthDay = e.BirthDay,
-            Version = e.Version
-        }).ToList();
 
-        return employeeBaseResponses;
+            return ResponseEntity<List<Object>>.Other(ex.Message, 200);
+        }
     }
 
 
 
 
 
-    public async Task<ResponseEntity<EmployeeBaseResponse>> FindById(int id) {
-        try {
+    public async Task<ResponseEntity<EmployeeBaseResponse>> FindById(int id)
+    {
+        try
+        {
             var result = await _employeeRepository.GetByIdAsync(id);
-            return ResponseEntity<EmployeeBaseResponse>.CreateSuccess(new EmployeeBaseResponse {
+            return ResponseEntity<EmployeeBaseResponse>.CreateSuccess(new EmployeeBaseResponse
+            {
                 Id = (int)result.Id,
                 Visa = result.Visa,
                 FirstName = result.FirstName,
@@ -52,10 +63,13 @@ public class EmployeeService(EmployeeRepository employeeRepository, ProjectRepos
                 BirthDay = result.BirthDay,
                 Version = result.Version
             });
-        }catch (Exception) {
+        }
+        catch (Exception)
+        {
             return ResponseEntity<EmployeeBaseResponse>.Other("Not Found Employee With This ID", 200);
         }
     }
+    
 
     public async Task<ResponseEntity<EmployeeBaseResponse>> CreateEmployeeAsync (EmployeeRequest employeeRequest) {
         if (employeeRequest == null)
