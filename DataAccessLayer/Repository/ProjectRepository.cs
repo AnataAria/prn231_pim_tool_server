@@ -24,7 +24,7 @@ namespace DataAccessLayer.Repository
         }
         public async Task<IEnumerable<Project>> FindByConditionWithPaginationAsync(Expression<Func<Project, bool>> predicate, int page = 1, int size = 5)
         {
-            return await _dbSet.Include(p => p.GroupProject).Where(predicate).Skip((page - 1) * size).Take(size).ToListAsync();
+            return await _dbSet.Include(p => p.GroupProject).ThenInclude(g=> g.Leader).Where(predicate).Skip((page - 1) * size).Take(size).ToListAsync();
         }
 
     }

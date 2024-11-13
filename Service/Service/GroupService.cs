@@ -10,99 +10,99 @@ public class GroupService(GroupRepository groupRepository)
     private readonly GroupRepository _groupRepository = groupRepository;
 
     public async Task<ResponseEntity<GroupResponseDto>> CreateGroupAsync(CreateGroupDto createGroupDto)
+    {
+        if (createGroupDto == null)
         {
-            if (createGroupDto == null)
-            {
-                return ResponseEntity<GroupResponseDto>.BadRequest("Group data cannot be null.");
-            }
-
-            var group = new Group
-            {
-                LeaderId = createGroupDto.LeaderId,
-                Version = 1
-            };
-
-            await _groupRepository.AddAsync(group);
-
-            var groupResponseDto = new GroupResponseDto
-            {
-                Id = (int)group.Id,
-                LeaderId = (int)group.LeaderId,
-                Version = (int)group.Version,
-            };
-
-            return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
+            return ResponseEntity<GroupResponseDto>.BadRequest("Group data cannot be null.");
         }
 
-        public async Task<ResponseEntity<GroupResponseDto>> GetGroupByIdAsync(long groupId)
+        var group = new Group
         {
-            var group = await _groupRepository.GetByIdAsync(groupId);
-            if (group == null)
-            {
-                return ResponseEntity<GroupResponseDto>.NotFound($"Group with ID {groupId} not found.");
-            }
+            LeaderId = createGroupDto.LeaderId,
+            Version = 1
+        };
 
-            var groupResponseDto = new GroupResponseDto
-            {
-                Id = (int)group.Id,
-                LeaderId = (int)group.LeaderId,
-                Version = (int)group.Version,
-            };
+        await _groupRepository.AddAsync(group);
 
-            return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
+        var groupResponseDto = new GroupResponseDto
+        {
+            Id = (int)group.Id,
+            LeaderId = (int)group.LeaderId,
+            Version = (int)group.Version,
+        };
+
+        return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
+    }
+
+    public async Task<ResponseEntity<GroupResponseDto>> GetGroupByIdAsync(long groupId)
+    {
+        var group = await _groupRepository.GetByIdAsync(groupId);
+        if (group == null)
+        {
+            return ResponseEntity<GroupResponseDto>.NotFound($"Group with ID {groupId} not found.");
         }
 
-        public async Task<ResponseEntity<GroupResponseDto>> UpdateGroupAsync(int groupId, CreateGroupDto updateGroupDto)
+        var groupResponseDto = new GroupResponseDto
         {
-            if (updateGroupDto == null)
-            {
-                return ResponseEntity<GroupResponseDto>.BadRequest("Updated group data cannot be null.");
-            }
+            Id = (int)group.Id,
+            LeaderId = (int)group.LeaderId,
+            Version = (int)group.Version,
+        };
 
-            var group = await _groupRepository.GetByIdAsync(groupId);
-            if (group == null)
-            {
-                return ResponseEntity<GroupResponseDto>.NotFound($"Group with ID {groupId} not found.");
-            }
+        return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
+    }
 
-            group.LeaderId = updateGroupDto.LeaderId;
-            group.Version ++;
-
-            await _groupRepository.UpdateAsync(group);
-
-            var groupResponseDto = new GroupResponseDto
-            {
-                Id = (int)group.Id,
-                LeaderId = (int)group.LeaderId,
-                Version = (int)group.Version,
-            };
-
-            return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
-        }
-        public async Task<ResponseEntity<GroupResponseDto>> DeleteGroupAsync(int groupId)
+    public async Task<ResponseEntity<GroupResponseDto>> UpdateGroupAsync(int groupId, CreateGroupDto updateGroupDto)
+    {
+        if (updateGroupDto == null)
         {
-            var group = await _groupRepository.GetByIdAsync(groupId);
-            if (group == null)
-            {
-                return ResponseEntity<GroupResponseDto>.NotFound($"Group with ID {groupId} not found.");
-            }
-
-            if (group.Project != null)
-            {
-                return ResponseEntity<GroupResponseDto>.BadRequest("Cannot delete a group that is linked to a project.");
-            }
-
-            await _groupRepository.DeleteGroupAsync(groupId);
-
-            var groupResponseDto = new GroupResponseDto
-            {
-                Id = (int)group.Id,
-                LeaderId = (int)group.LeaderId,
-                Version = (int)group.Version,
-            };
-
-            return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
+            return ResponseEntity<GroupResponseDto>.BadRequest("Updated group data cannot be null.");
         }
+
+        var group = await _groupRepository.GetByIdAsync(groupId);
+        if (group == null)
+        {
+            return ResponseEntity<GroupResponseDto>.NotFound($"Group with ID {groupId} not found.");
+        }
+
+        group.LeaderId = updateGroupDto.LeaderId;
+        group.Version++;
+
+        await _groupRepository.UpdateAsync(group);
+
+        var groupResponseDto = new GroupResponseDto
+        {
+            Id = (int)group.Id,
+            LeaderId = (int)group.LeaderId,
+            Version = (int)group.Version,
+        };
+
+        return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
+    }
+    public async Task<ResponseEntity<GroupResponseDto>> DeleteGroupAsync(int groupId)
+    {
+        var group = await _groupRepository.GetByIdAsync(groupId);
+        if (group == null)
+        {
+            return ResponseEntity<GroupResponseDto>.NotFound($"Group with ID {groupId} not found.");
+        }
+
+        if (group.Project != null)
+        {
+            return ResponseEntity<GroupResponseDto>.BadRequest("Cannot delete a group that is linked to a project.");
+        }
+
+        await _groupRepository.DeleteGroupAsync(groupId);
+
+        var groupResponseDto = new GroupResponseDto
+        {
+            Id = (int)group.Id,
+            LeaderId = (int)group.LeaderId,
+            Version = (int)group.Version,
+        };
+
+        return ResponseEntity<GroupResponseDto>.CreateSuccess(groupResponseDto);
+    }
 
 
     public async Task<ResponseEntity<IEnumerable<GroupResponseDto>>> GetAllGroupsAsync()
@@ -117,5 +117,5 @@ public class GroupService(GroupRepository groupRepository)
 
         return ResponseEntity<IEnumerable<GroupResponseDto>>.CreateSuccess(groupDtos);
     }
-        
+
 }

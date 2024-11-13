@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using AutoMapper;
 using DataAccessLayer.BusinessObject;
 using DataAccessLayer.Repository;
@@ -31,14 +30,7 @@ public class EmployeeService(EmployeeRepository employeeRepository, ProjectRepos
         {
             var result = await _employeeRepository.GetByIdAsync(id);
 
-            return ResponseEntity<EmployeeBaseResponse>.CreateSuccess(new EmployeeBaseResponse
-            {
-                Visa = result.Visa,
-                FirstName = result.FirstName,
-                LastName = result.LastName,
-                BirthDay = result.BirthDay,
-                Version = result.Version
-            });
+            return ResponseEntity<EmployeeBaseResponse>.CreateSuccess(mapper.Map<EmployeeBaseResponse>(result));
         }
         catch (Exception)
         {
@@ -118,24 +110,6 @@ public class EmployeeService(EmployeeRepository employeeRepository, ProjectRepos
         await _employeeRepository.DeleteAsync(id);
 
         return ResponseEntity<EmployeeBaseResponse>.CreateSuccess(mapper.Map<EmployeeBaseResponse>(employee));
-    }
-
-    public bool IsValidName(string fullname)
-    {
-        var regex = new Regex(@"^[A-Z][a-zA-Z0-9#@ ]*$");
-        return !string.IsNullOrWhiteSpace(fullname) && regex.IsMatch(fullname);
-    }
-
-    public static bool IsValidVisa(string visa)
-    {
-        const string VisaPattern = @"^[A-Z0-9]{5,10}$";
-
-        if (string.IsNullOrWhiteSpace(visa))
-        {
-            return false;
-        }
-
-        return Regex.IsMatch(visa, VisaPattern);
     }
     public bool IsValidBirthday(DateTime birthDate)
     {
