@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PIMToolServerAPI.Config;
+using Service.Mapper;
 using Service.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +40,7 @@ builder.Services.AddSwaggerGen(c =>
             }
         });
 });
-
+// Data Layer
 builder.Services.AddDbContext<PIMDatabaseContext>();
 builder.Services.AddScoped(typeof(BaseRepository<,>));
 builder.Services.AddScoped<UserRepository>();
@@ -47,20 +48,24 @@ builder.Services.AddScoped<GroupRepository>();
 builder.Services.AddScoped<EmployeeRepository>();
 builder.Services.AddScoped<ProjectRepository>();
 
-
+// Service Layer
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<GroupService>();
+
+// Auto Mapper
+builder.Services.AddAutoMapper(typeof(EmployeeMapperProfile));
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
-    var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
+    JwtSettings? jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
 
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -73,13 +78,17 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
     };
 });
+
+builder.Services.AddCors(options => {
+options.AddPolicy("AllowAllOrigins", builder =>
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader());
+});
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -87,6 +96,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseCors("AllowAllOrigins");
 
 using (var scope = app.Services.CreateScope())
 {
