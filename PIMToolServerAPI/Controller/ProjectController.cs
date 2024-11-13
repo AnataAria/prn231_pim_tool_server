@@ -11,7 +11,7 @@ namespace PIMToolServerAPI.Controller;
 public class ProjectController(ProjectService projectService): ControllerBase {
     private readonly ProjectService service = projectService;
     [HttpGet]
-    public async Task<ActionResult<List<ProjectBaseResponse>>> SearchProjects(
+    public async Task<ActionResult<ResponseEntity<List<ProjectBaseResponse>>>> SearchProjects(
         [FromQuery] string searchTerm = "all",
         [FromQuery] string status = null,  // Added nullable status
         [FromQuery] DateTime? startDate = null,

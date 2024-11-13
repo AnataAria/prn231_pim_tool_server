@@ -11,7 +11,7 @@ public class EmployeeController(EmployeeService employeeService): ControllerBase
     private readonly EmployeeService _employeeService = employeeService;
 
     [HttpGet("search")]
-    public async Task<IActionResult> GetEmployees([FromQuery] int page = 1, [FromQuery] int size = 10, [FromQuery] string keyword = "all")
+    public async Task<ActionResult<ResponseEntity<List<EmployeeBaseResponse>>>> GetEmployees([FromQuery] int page = 1, [FromQuery] int size = 10, [FromQuery] string keyword = "all")
     {
         var employees = await _employeeService.SearchEmployeesAsync(keyword, page, size);
         return Ok(employees);
