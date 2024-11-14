@@ -1,7 +1,7 @@
 namespace Service.DTO;
 public class ProjectBaseResponse
 {
-    public string? LeaderName { get; set; }
+    public long? GroupId { get; set; }
     public long? ProjectNumber { get; set; }
     public string? Name { get; set; }
     public string? Customer { get; set; }

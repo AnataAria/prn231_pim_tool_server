@@ -12,7 +12,7 @@ public class EmployeeService(EmployeeRepository employeeRepository, ProjectRepos
     private readonly ProjectRepository _projectRepository = projectRepository;
     private readonly IMapper mapper = mapper;
 
-    public async Task<List<EmployeeBaseResponse>> SearchEmployeesAsync(string searchTerm = "all", int pageNumber = 1, int pageSize = 10)
+    public async Task<ResponseEntity<List<EmployeeBaseResponse>>> SearchEmployeesAsync(string searchTerm = "all", int pageNumber = 1, int pageSize = 10)
     {
         var employees = await _employeeRepository.FindByConditionWithPaginationAsync((e) => searchTerm == "all" ||
             e.Visa.Contains(searchTerm) ||
@@ -21,7 +21,7 @@ public class EmployeeService(EmployeeRepository employeeRepository, ProjectRepos
 
         var employeeBaseResponses = employees.Select(e => mapper.Map<EmployeeBaseResponse>(e)).ToList();
 
-        return employeeBaseResponses;
+        return ResponseEntity<List<EmployeeBaseResponse>>.CreateSuccess(employeeBaseResponses);
     }
 
     public async Task<ResponseEntity<EmployeeBaseResponse>> FindById(int id)

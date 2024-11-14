@@ -10,7 +10,7 @@ namespace PIMToolServerAPI.Controller;
 public class EmployeeController(EmployeeService employeeService): ControllerBase {
     private readonly EmployeeService _employeeService = employeeService;
 
-    [HttpGet("search")]
+    [HttpGet]
     public async Task<ActionResult<ResponseEntity<List<EmployeeBaseResponse>>>> GetEmployees([FromQuery] int page = 1, [FromQuery] int size = 10, [FromQuery] string keyword = "all")
     {
         var employees = await _employeeService.SearchEmployeesAsync(keyword, page, size);

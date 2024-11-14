@@ -32,7 +32,7 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
             IEnumerable<ProjectBaseResponse> projectBaseResponses = projectsQuery.Select(p => {
                 return new ProjectBaseResponse
                 {
-                    LeaderName = p.GroupProject?.Leader?.LastName,
+                    GroupId = p.GroupId,
                     ProjectNumber = p.ProjectNumber,
                     Name = p.Name,
                     Customer = p.Customer,
@@ -59,7 +59,7 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
 
             return ResponseEntity<ProjectBaseResponse>.CreateSuccess(new ProjectBaseResponse
             {
-                LeaderName = leader?.LastName,
+                GroupId = result.GroupId,
                 ProjectNumber = result.ProjectNumber,
                 Name = result.Name,
                 Customer = result.Customer,
