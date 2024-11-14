@@ -12,7 +12,7 @@ namespace Service.Service
 
         public async Task<ResponseEntity<AuthenticationResponse>> Login (AuthenticationRequest request) {
             try {
-                var user = await userRepo.SearchUserByUsername(request.UserName);
+                var user = await userRepo.SearchUserByUsername(request.Username);
                 if (!ValidatePassword(request.Password, user.PasswordHash)) {
                     throw new Exception("Password Is Not Correct");
                 }
