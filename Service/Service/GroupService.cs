@@ -5,9 +5,10 @@ using Service.DTO.Response;
 
 namespace Service.Service;
 
-public class GroupService(GroupRepository groupRepository)
+public class GroupService(GroupRepository groupRepository, EmployeeRepository employeeRepository)
 {
     private readonly GroupRepository _groupRepository = groupRepository;
+    private readonly EmployeeRepository _employeeRepository = employeeRepository;
 
     public async Task<ResponseEntity<GroupResponseDto>> CreateGroupAsync(CreateGroupDto createGroupDto)
     {
@@ -67,7 +68,6 @@ public class GroupService(GroupRepository groupRepository)
 
         group.LeaderId = updateGroupDto.LeaderId;
         group.Version++;
-
         await _groupRepository.UpdateAsync(group);
 
         var groupResponseDto = new GroupResponseDto
@@ -108,14 +108,24 @@ public class GroupService(GroupRepository groupRepository)
     public async Task<ResponseEntity<IEnumerable<GroupResponseDto>>> GetAllGroupsAsync()
     {
         var groups = await _groupRepository.GetAllGroupsAsync();
-        var groupDtos = groups.Select(g => new GroupResponseDto
+
+        var groupTasks = groups.Select(async g =>
         {
-            Id = (int)g.Id,
-            LeaderId = (int)g.LeaderId,
-            Version = (int)g.Version,
+            var leader = await _employeeRepository.GetByIdAsync((int)g.LeaderId);
+            var leaderName = leader.FirstName +" "+ leader.LastName;
+            return new GroupResponseDto
+            {
+                Id = (int)g.Id,
+                LeaderId = (int)g.LeaderId,
+                LeaderName = leaderName,
+                Version = (int)g.Version
+            };
         });
+
+        var groupDtos = await Task.WhenAll(groupTasks);
 
         return ResponseEntity<IEnumerable<GroupResponseDto>>.CreateSuccess(groupDtos);
     }
+
 
 }
