@@ -37,5 +37,15 @@ namespace DataAccessLayer.Repository
             return await _dbSet.AnyAsync(item => item.ProjectNumber == projectNumber);
         }
 
+        public override async Task DeleteAsync(int id)
+        {
+            var entity = await GetByProjectIdAsync(id);
+            if (entity != null)
+            {
+                _dbSet.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
+        }
+
     }
 }
