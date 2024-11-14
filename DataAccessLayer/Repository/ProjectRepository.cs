@@ -27,5 +27,15 @@ namespace DataAccessLayer.Repository
             return await _dbSet.Include(p => p.GroupProject).ThenInclude(g=> g.Leader).Where(predicate).Skip((page - 1) * size).Take(size).ToListAsync();
         }
 
+        public async Task<Project> GetByProjectIdAsync(long projectNumber)
+        {
+            return await _dbSet.FirstOrDefaultAsync(item => item.ProjectNumber == projectNumber) ?? throw new KeyNotFoundException($"Entity with {projectNumber} not found");
+        }
+
+        public async Task<bool> IsProjectIdExisted(long projectNumber)
+        {
+            return await _dbSet.AnyAsync(item => item.ProjectNumber == projectNumber);
+        }
+
     }
 }

@@ -29,7 +29,8 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
                 (!startDate.HasValue || p.StartDate >= startDate) &&
                 (!endDate.HasValue || p.EndDate <= endDate), pageNumber, pageSize);
 
-            IEnumerable<ProjectBaseResponse> projectBaseResponses = projectsQuery.Select(p => {
+            IEnumerable<ProjectBaseResponse> projectBaseResponses = projectsQuery.Select(p =>
+            {
                 return new ProjectBaseResponse
                 {
                     GroupId = p.GroupId,
@@ -50,12 +51,11 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
             return ResponseEntity<List<ProjectBaseResponse>>.Other(ex.Message, 200);
         }
     }
-    public async Task<ResponseEntity<ProjectBaseResponse>> FindById(int id)
+    public async Task<ResponseEntity<ProjectBaseResponse>> FindById(long id)
     {
         try
         {
-            var result = await repository.GetByIdAsync(id);
-            var leader = await _employeeRepository.GetByIdAsync(result.GroupProject.LeaderId);
+            var result = await repository.GetByProjectIdAsync(id);
 
             return ResponseEntity<ProjectBaseResponse>.CreateSuccess(new ProjectBaseResponse
             {
@@ -71,26 +71,32 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
         }
         catch (Exception)
         {
-            return ResponseEntity<ProjectBaseResponse>.Other("Not Found Employee With This ID", 200);
+            return ResponseEntity<ProjectBaseResponse>.Other("Not Found Project With This ID", 200);
         }
     }
     public async Task<ResponseEntity<Object>> CreateProject(ProjectRequest projectRequest)
     {
         try
         {
-            var entitySample = new Project()
+            bool projectIDValid = await repository.IsProjectIdExisted(projectRequest.ProjectNumber);
+            if (projectIDValid)
             {
-                GroupId = projectRequest.GroupId,
-                Name = projectRequest.Name,
-                Customer = projectRequest.Customer,
-                Status = projectRequest.Status,
-                StartDate = projectRequest.StartDate,
-                EndDate = projectRequest.EndDate,
-                ProjectNumber = projectRequest.ProjectNumber,
-                Version = 1
-            };
-            await repository.AddAsync(entitySample);
-            return ResponseEntity<Object>.CreateSuccess("Create Project Success");
+                var entitySample = new Project()
+                {
+                    GroupId = projectRequest.GroupId,
+                    Name = projectRequest.Name,
+                    Customer = projectRequest.Customer,
+                    Status = projectRequest.Status,
+                    StartDate = projectRequest.StartDate,
+                    EndDate = projectRequest.EndDate,
+                    ProjectNumber = projectRequest.ProjectNumber,
+                    Version = 1
+                };
+                await repository.AddAsync(entitySample);
+                return ResponseEntity<Object>.CreateSuccess("Create Project Success");
+            } else {
+                return ResponseEntity<Object>.Other("Project Number Matched", 200);
+            }
         }
         catch (Exception ex)
         {
@@ -102,7 +108,7 @@ public class ProjectService(ProjectRepository projectRepository, EmployeeReposit
     {
         try
         {
-            var entity = await repository.GetByIdAsync(id);
+            var entity = await repository.GetByProjectIdAsync(id);
             entity.ProjectNumber = projectRequest.ProjectNumber;
             entity.GroupId = projectRequest.GroupId;
             entity.Status = projectRequest.Status;
